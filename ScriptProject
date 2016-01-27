@@ -91,3 +91,7 @@ for line in OutFile:
 
 #print the 3D list 'dag'	
 print dag
+
+#loop through each line of the file to write it to OutFile2:
+for line in dag:
+	OutFile2.write("%s\n" % line)
