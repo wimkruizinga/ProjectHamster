@@ -25,7 +25,7 @@ def decbin(DecNum):
 #Finished defining the decbin function
 
 #Define file name and give a name to the output file
-InFileName = 'testfile.txt'
+InFileName = '201010100.txt'
 OutFileName = InFileName + 'ScriptedTime.txt'
 
 InFile = open(InFileName, 'r')
@@ -102,19 +102,14 @@ for line in OutFile:
 	dag.append(linelist)
 
 #print the 3D list 'dag'	
-print dag	
+lastevent=len(dag)-1
+firstevent = dag[0][0]
+TimeInterval=10000000
+print dag[lastevent][0]	
 
 #loop through each line of the file to write it to OutFile2:
 for line in dag:
 	OutFile2.write("%s\n" % line)
 
 
-#OutFile2.write(DatumTijd + '\t' + ListBinary + '\n')
-#However it does not work: TypeError: can only concatenate list (not "str") to list
-# I don't understand this...
-# also when trying OutFile2.write(ListBinary + '\n') it does not work...
-
-#SearchStr = '(\d+)(\t)(\d+)'
-#Datumtijd = Result.group(1)
-#Binaries = list(Result.group(3))
 
