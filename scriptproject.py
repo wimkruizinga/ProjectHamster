@@ -1,17 +1,21 @@
 #! /usr/bin/env python
 
-from numpy import binary_repr
-import numpy as np
-#import os #maybe for the more files
+import re # regular expressions module is imported for split() function
+from numpy import binary_repr #Import part of numpy module for Dec to Bin conversion
+import numpy as np # Import numpy module
+# import time # module not used anymore
+import matplotlib.pyplot as plt # Matplotlib module for graphing
+import plotly.plotly as py # Plotly is also used for graphing
+py.sign_in('Lottedietz', 'isyudjqzsd') # Login for export of bar charts to the web
 
-#maybe import re to load regular expression module
-import re
 
 #Make a function for the decimals to binary conversion
 def decbin(DecNum): 
 	#Define the variable 'Bin' in which we will put the binary number of the input
 	Bin=binary_repr(DecNum, width=8)
 	
+	#Since the default value is 1 and this is changed to 0 at sensor activation, 
+	#we have to invert the binary numbers:
 	#Define the variable BinInv which will contain the inverted binary number of Bin
 	BinInv=""
 	#This is done by making a for loop:	
@@ -25,11 +29,21 @@ def decbin(DecNum):
 #Finished defining the decbin function
 
 #Define file name and give a name to the output file
-InFileName = '201010100.txt'
+print "Welcome, dear connoisseur aka creator of actograms in spe!"
+print "HEALTH WARNING: If you feel depressed, please consult a psychologist. If not,"
+InFileName = raw_input("Enter a File name:")
 OutFileName = InFileName + 'ScriptedTime.txt'
-
 InFile = open(InFileName, 'r')
 OutFile = open(OutFileName, 'w')
+
+# Ask user for range of sensors
+RangeStart = raw_input("Enter the start of the sensor range (0-48): ")
+RangeEnd = raw_input("Enter the end of the sensor range (0-48): ")
+# Variables have to be converted into integers
+RangeStart = int(RangeStart)
+RangeEnd = int(RangeEnd)
+
+print "Please wait while we process your file..."
 
 #loop through each line in the file
 for Line in InFile:
@@ -41,12 +55,21 @@ for Line in InFile:
 	#print ElementList
 	
 	#Manier om data duidelijker te maken:
-	Time=str(ElementList[0])+str(ElementList[1]).zfill(2)+ \
-	str(ElementList[2]).zfill(2)+str(ElementList[3]).zfill(2)+ \
-	str(ElementList[4]).zfill(2)+ str(ElementList[5]).zfill(2)+ \
-	str(ElementList[6]).zfill(3)
+	#Time=str(ElementList[0])+str(ElementList[1]).zfill(2)+ \
+	#str(ElementList[2]).zfill(2)+str(ElementList[3]).zfill(2)+ \
+	#str(ElementList[4]).zfill(2)+ str(ElementList[5]).zfill(2)+ \
+	#str(ElementList[6]).zfill(3)
+	Date=ElementList[0]+"-"+ElementList[1]+"-"+ElementList[2]
+	#blaat1 = time.strptime(Time, "%Y%m%d%H%M%S%f")	
 	
-	OutFile.write(Time + '\t')
+	Hours=int(ElementList[3])
+	Minutes=int(ElementList[4])
+	Seconds=float(ElementList[5])
+	Time=(Hours*60)+Minutes+(Seconds/60)
+	#print Date, Time
+ 
+	OutFile.write(str(Time) + '\t')
+	#OutFile.write(Time + '\t')
 	
 	#for each column in the range of 7 until 13,
 	for Column in range(7,13):
@@ -58,7 +81,7 @@ for Line in InFile:
 		#print decbin(int(ElementList[Column])),
 	OutFile.write('\n')
 	
-print "Output printed to outfile"
+print "Output printed to outfile! This is getting exciting!"
 	
 #Close the files
 InFile.close()
@@ -86,14 +109,14 @@ for line in OutFile:
 	# and put them into 'col'
 	col = re.split("\t", line)
 	#append the integer of the first element of 'col' (date/time) to the list 'linelist'
-	linelist.append(int(col[0]))
+	linelist.append(float(col[0]))
 	
 	#make a new list named 'channel'
 	channel = list()
 	
 	# for each character in col[1] (i) in range 0-47,
 	# append the integer of it to the list 'channel'
-	for i in range(0,47):
+	for i in range(0,48):
 		channel.append(int(col[1][i]))
 		
 	# append the list 'channel' (3rd dimension) to the list 'linelist' (2nd dimension)
@@ -101,15 +124,51 @@ for line in OutFile:
 	# append the list 'linelist' to the list 'dag' (1st dimension)
 	dag.append(linelist)
 
-#print the 3D list 'dag'	
-lastevent=len(dag)-1
-firstevent = dag[0][0]
-TimeInterval=10000000
-print dag[lastevent][0]	
+print "Hang on..."
 
-#loop through each line of the file to write it to OutFile2:
-for line in dag:
-	OutFile2.write("%s\n" % line)
+# Define EndOfLine as the number of lines in the source file
+EndOfFile = len(dag)
+# Initiate SumInterval to be used for calculating the sum of sensor signals within an interval
+SumInterval=0
+# Set the bin size in minutes
+BinSize=10
+# X is defined as the timestamp of the first event in a file
+X = float(dag[0][0])
+# Initiate lists to which x and y values for the actogram are appended
+TimeIntervals = list()
+ActivityIntervals = list()
 
+# Create nested for loop and if/else statement to calculate the sum for 
+# all sensor states in a certain range and a certain time interval 
+for i in range (0,EndOfFile):
+	# Y is defined as the timestamp of the current event in the for loop
+	Y = dag[i][0]
+	SumEvent=0
+	# If the timestamp Y exceeds the current time interval or the end of the file is reached,
+	# write to lists for creation of actogram. 
+	if Y > X + BinSize or Y==dag[EndOfFile-1][0]:
+		TimeIntervals.append((X+(BinSize/2))/60)
+		ActivityIntervals.append(SumInterval)
+		# Reset SumInterval to 0 for next cycle and increase X for next 10 minute interval
+		SumInterval=0
+		X = X + BinSize		 
+	else:
+		SumSensor = 0
+		# Iterate through sensor range and add states to SumSensor
+		for k in range(RangeStart,RangeEnd):
+			SumSensor += dag[i][1][k]
+		# Add sum of sensor states in one event to SumInterval
+		SumInterval += SumSensor
 
+print "Incoming plot!"
 
+# HERE COMES THE PLOT
+y = ActivityIntervals
+x = TimeIntervals
+N = len(x)
+width = 1/1.5
+plt.bar(x, y, width, color="blue")
+
+# Create plot
+fig = plt.gcf()
+plot_url = py.plot_mpl(fig, filename='mpl-basic-bar')
