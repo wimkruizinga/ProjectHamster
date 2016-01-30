@@ -19,3 +19,8 @@ The user then has to input the range of sensors that should be processed (0-48).
 By default, events are grouped in 10 minute intervals. To use a different bin size, change the value of the following variable:
 
 	BinSize=10
+
+AND!
+To make the plot, you need to log in on plotly.com. 
+In this script, Lottes username and API key are used, so the graph is only created when being logged in on that account. 
+To check whether the script works completely you could contact or email Lotte or to make your own account and change the username and API key.
