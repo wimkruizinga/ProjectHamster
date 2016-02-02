@@ -20,7 +20,13 @@ By default, events are grouped in 10 minute intervals. To use a different bin si
 
 	BinSize=10
 
-AND!
-To make the plot, you need to log in on plotly.com. 
+PLOTLY notes:
+For the use of Plotly, it first needs to  be installed. This can be done using the following command in the terminal (With or without sudo):
+	$ (sudo) pip install plotly
+You probably have pip installed already, but it might be necessary to update it first:
+	On OS X / Linux: pip install -U pip
+	On Windows: python -m pip install -U pip
+
+To make the plot, you need to be logged in on plotly.com while you run the program in the terminal.
 In this script, Lottes username and API key are used, so the graph is only created when being logged in on that account. 
 To check whether the script works completely you could contact or email Lotte or to make your own account and change the username and API key.
