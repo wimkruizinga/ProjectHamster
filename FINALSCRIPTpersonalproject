@@ -4,7 +4,7 @@ import re # regular expressions module is imported for split() function
 from numpy import binary_repr #Import part of numpy module for Dec to Bin conversion
 import numpy as np # Import numpy module
 # import time # module not used anymore
-import matplotlib.pyplot as plt # Matplotlib module for graphing
+#import matplotlib.pyplot as plt # Matplotlib module for graphing, not used in final version
 import plotly.plotly as py # Plotly is also used for graphing
 py.sign_in('Lottedietz', 'isyudjqzsd') # Login for export of bar charts to the web
 
